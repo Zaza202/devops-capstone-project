@@ -67,10 +67,17 @@ def create_accounts():
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
+@app.route("/accounts/<int:account_id>", methods=["GET"])
+def get_accounts(account_id):
+    """
+    Read a single Account
+    """
+    app.logger.info("Processing lookup for id %s ...", account_id)
+    account = Account.find(account_id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND, description=f"Account with id '{account_id}' was not found.")
 
-# ... place you code here to READ an account ...
-
-
+    return jsonify(account.serialize()), status.HTTP_200_OK
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
@@ -81,10 +88,17 @@ def create_accounts():
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
+@app.route("/accounts/<int:account_id>", methods=["DELETE"])
+def delete_accounts(account_id):
+    """
+    Delete an Account
+    """
+    account = Account.find(account_id)
+    if not account:
+        return jsonify(message="Account not found"), status.HTTP_404_NOT_FOUND
 
-# ... place you code here to DELETE an account ...
-
-
+    account.delete()
+    return "", status.HTTP_204_NO_CONTENT
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
