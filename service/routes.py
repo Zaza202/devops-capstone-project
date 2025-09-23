@@ -60,10 +60,15 @@ def create_accounts():
 ######################################################################
 # LIST ALL ACCOUNTS
 ######################################################################
-
-# ... place you code here to LIST accounts ...
-
-
+@app.route("/accounts", methods=["GET"])
+def list_accounts():
+    """
+    List all Accounts
+    """
+    app.logger.info("Request to list Accounts")
+    accounts = Account.all()
+    results = [account.serialize() for account in accounts]
+    return jsonify(results), status.HTTP_200_OK
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
@@ -81,10 +86,23 @@ def get_accounts(account_id):
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
+@app.route("/accounts/<int:account_id>", methods=["PUT"])
+def update_account(account_id):
+    """
+    Update an existing Account
+    """
+    app.logger.info("Request to update Account with id %s", account_id)
+    account = Account.find(account_id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND, description=f"Account with id '{account_id}' was not found.")
 
-# ... place you code here to UPDATE an account ...
+    data = request.get_json()
+    if not data:
+        abort(status.HTTP_400_BAD_REQUEST, description="Invalid data in request body.")
 
-
+    account.deserialize(data)
+    account.update()
+    return jsonify(account.serialize()), status.HTTP_200_OK
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################

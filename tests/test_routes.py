@@ -148,8 +148,44 @@ class TestAccountService(TestCase):
         resp = self.client.get(f"{BASE_URL}/{account.id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_method_not_allowed(self):
-        """It should return 405 Method Not Allowed"""
-        response = self.client.put(f"{BASE_URL}/123")  # Assuming PUT isn’t implemented
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+    def test_update_nonexistent_account(self):
+        """It should return 404 when updating a non-existing Account"""
+        new_data = {"name": "Ghost"}
+        response = self.client.put(
+            f"{BASE_URL}/0",
+            json=new_data,
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+    def test_list_accounts(self):
+        """It should List all Accounts"""
+        self._create_accounts(5)
+        resp = self.client.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
+
+
+    def test_update_account(self):
+        """It should Update an existing Account"""
+        account = self._create_accounts(1)[0]
+        new_data = {
+            "name": "Updated Name",
+            "email": "updated@example.com",
+            "address": "Updated Address",
+            "phone_number": "123-456-7890",
+            "date_joined": str(account.date_joined)  # keep original date
+        }
+
+        resp = self.client.put(
+            f"{BASE_URL}/{account.id}",
+            json=new_data,
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated = resp.get_json()
+        self.assertEqual(updated["name"], "Updated Name")
+        self.assertEqual(updated["email"], "updated@example.com")
 
