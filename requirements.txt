@@ -27,3 +27,6 @@ coverage==6.3.2
 
 # Utilities
 httpie==3.2.1
+
+# Security
+talisman==0.1.0

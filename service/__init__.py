@@ -6,12 +6,23 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_talisman import Talisman
 from service import config
 from service.common import log_handlers
 
-# Create Flask application
 app = Flask(__name__)
 app.config.from_object(config)
+
+# Initialize Talisman (you can still keep minimal defaults)
+talisman = Talisman(app, frame_options="SAMEORIGIN")
+
+# Force CSP and other headers manually
+@app.after_request
+def set_security_headers(response):
+    response.headers["Content-Security-Policy"] = "default-src 'self'; object-src 'none'"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 # Import the routes After the Flask app is created
 # pylint: disable=wrong-import-position, cyclic-import, wrong-import-order
