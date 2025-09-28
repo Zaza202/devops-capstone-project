@@ -29,4 +29,4 @@ coverage==6.3.2
 httpie==3.2.1
 
 # Security
-talisman==0.1.0
+flask-talisman==1.1.0
